@@ -19,6 +19,11 @@ export async function generateAIResponse(
         content: userMessage,
       },
     ],
+    // options: {
+    //   num_predict: 300,
+    //   temperature: 0.7,
+    // },
+    keep_alive: "30m"
   });
 
   const duration = ((Date.now() - startTime) / 1000).toFixed(2);

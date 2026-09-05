@@ -11,12 +11,24 @@ export async function textMessageHandler(ctx: Context): Promise<void> {
   const message = ctx.message;
   const text = message.text.trim();
 
-  // Only process messages that explicitly mention the bot
-  if (!text.toLowerCase().includes(`@${BOT_USERNAME}`.toLowerCase())) {
-    return;
+  const chatType = ctx.chat?.type;
+
+  // Private chat:
+  // The user is already talking directly to the bot,
+  // so no @mention is required.
+  const isPrivateChat = chatType === 'private';
+
+  // Group / supergroup:
+  // Only respond when the bot is explicitly mentioned.
+  const botMention = `@${BOT_USERNAME}`;
+
+  if (!isPrivateChat) {
+    if (!text.toLowerCase().includes(botMention.toLowerCase())) {
+      return;
+    }
   }
 
-  // Remove the bot mention
+  // Remove the bot mention if it exists.
   const question = text
     .replace(new RegExp(`@${BOT_USERNAME}\\b`, 'gi'), '')
     .trim();
