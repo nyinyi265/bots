@@ -1,10 +1,11 @@
-import { Context } from 'telegraf';
-import { brainstorm } from '../brainstorm/brainstorm.engine.js';
+import { Context } from "telegraf";
+import { brainstorm } from "../brainstorm/brainstorm.engine.js";
+import { getConversation, addMessage, clearConversation  } from "../memory/conversation.memeory.js";
 
-const BOT_USERNAME = 'zethus_brainstorm_bot';
+const BOT_USERNAME = "zethus_brainstorm_bot";
 
 export async function textMessageHandler(ctx: Context): Promise<void> {
-  if (!ctx.message || !('text' in ctx.message)) {
+  if (!ctx.message || !("text" in ctx.message)) {
     return;
   }
 
@@ -16,7 +17,7 @@ export async function textMessageHandler(ctx: Context): Promise<void> {
   // Private chat:
   // The user is already talking directly to the bot,
   // so no @mention is required.
-  const isPrivateChat = chatType === 'private';
+  const isPrivateChat = chatType === "private";
 
   // Group / supergroup:
   // Only respond when the bot is explicitly mentioned.
@@ -30,29 +31,53 @@ export async function textMessageHandler(ctx: Context): Promise<void> {
 
   // Remove the bot mention if it exists.
   const question = text
-    .replace(new RegExp(`@${BOT_USERNAME}\\b`, 'gi'), '')
+    .replace(new RegExp(`@${BOT_USERNAME}\\b`, "gi"), "")
     .trim();
 
   if (!question) {
-    await ctx.reply(
-      '🧠 What would you like to brainstorm about?'
-    );
+    await ctx.reply("🧠 What would you like to brainstorm about?");
     return;
   }
 
-  console.log('🧠 Brainstorm question:', question);
+  console.log("🧠 Brainstorm question:", question);
 
   try {
-    await ctx.sendChatAction('typing');
+    await ctx.sendChatAction("typing");
 
-    const response = await brainstorm(question);
+    const conversationId = String(ctx.chat!.id);
+
+    const conversationHistory = getConversation(conversationId);
+
+    const response = await brainstorm(question, conversationHistory);
+
+    addMessage(conversationId, {
+      role: "user",
+      content: question,
+    });
+
+    addMessage(conversationId, {
+      role: "assistant",
+      content: response,
+    });
 
     await ctx.reply(response);
   } catch (error) {
-    console.error('❌ Brainstorm error:', error);
+    console.error("❌ Brainstorm error:", error);
 
     await ctx.reply(
-      '❌ Sorry, I could not generate a brainstorming response right now.'
+      "❌ Sorry, I could not generate a brainstorming response right now.",
     );
   }
+}
+
+export async function clearCommandHandler(
+  ctx: Context,
+): Promise<void> {
+  const conversationId = String(ctx.chat!.id);
+
+  clearConversation(conversationId);
+
+  await ctx.reply(
+    '🧹 Conversation cleared. Let\'s start fresh!',
+  );
 }
