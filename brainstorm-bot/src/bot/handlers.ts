@@ -1,6 +1,10 @@
 import { Context } from "telegraf";
 import { brainstorm } from "../brainstorm/brainstorm.engine.js";
-import { getConversation, addMessage, clearConversation  } from "../memory/conversation.memeory.js";
+import {
+  getConversation,
+  addMessage,
+  clearConversation,
+} from "../memory/conversation.memory.js";
 
 const BOT_USERNAME = "zethus_brainstorm_bot";
 
@@ -14,13 +18,10 @@ export async function textMessageHandler(ctx: Context): Promise<void> {
 
   const chatType = ctx.chat?.type;
 
-  // Private chat:
-  // The user is already talking directly to the bot,
-  // so no @mention is required.
+  // Private chat
   const isPrivateChat = chatType === "private";
 
-  // Group / supergroup:
-  // Only respond when the bot is explicitly mentioned.
+  // Group
   const botMention = `@${BOT_USERNAME}`;
 
   if (!isPrivateChat) {
@@ -53,6 +54,8 @@ export async function textMessageHandler(ctx: Context): Promise<void> {
     addMessage(conversationId, {
       role: "user",
       content: question,
+      userId: String(ctx.from?.id),
+      username: ctx.from?.username ?? ctx.from?.first_name ?? "Unknown user",
     });
 
     addMessage(conversationId, {
@@ -70,14 +73,10 @@ export async function textMessageHandler(ctx: Context): Promise<void> {
   }
 }
 
-export async function clearCommandHandler(
-  ctx: Context,
-): Promise<void> {
+export async function clearCommandHandler(ctx: Context): Promise<void> {
   const conversationId = String(ctx.chat!.id);
 
   clearConversation(conversationId);
 
-  await ctx.reply(
-    '🧹 Conversation cleared. Let\'s start fresh!',
-  );
+  await ctx.reply("🧹 Conversation cleared. Let's start fresh!");
 }

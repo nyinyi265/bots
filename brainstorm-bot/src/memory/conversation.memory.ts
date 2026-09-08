@@ -1,13 +1,17 @@
-type Message = {
-  role: 'user' | 'assistant';
+export type Message = {
+  role: "user" | "assistant";
   content: string;
+  userId?: string;
+  username?: string;
 };
 
 const conversations = new Map<string, Message[]>();
 
 const MAX_MESSAGES = 10;
 
-export function getConversation(conversationId: string): Message[] {
+export function getConversation(
+  conversationId: string,
+): Message[] {
   return conversations.get(conversationId) ?? [];
 }
 
@@ -26,6 +30,8 @@ export function addMessage(
   conversations.set(conversationId, messages);
 }
 
-export function clearConversation(conversationId: string): void {
+export function clearConversation(
+  conversationId: string,
+): void {
   conversations.delete(conversationId);
 }

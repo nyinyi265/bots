@@ -1,11 +1,7 @@
 import ollama from "ollama";
+import {Message} from '../memory/conversation.memory.js'
 
 const MODEL = "llama3.2";
-
-type Message = {
-  role: 'user' | 'assistant';
-  content: string;
-}
 
 export async function generateAIResponse(
   userMessage: string,
@@ -13,6 +9,15 @@ export async function generateAIResponse(
   conversationHistory: Message[] = [],
 ): Promise<string> {
   const startTime = Date.now();
+
+  const history = conversationHistory.map((message) => ({
+    role: message.role,
+    content:
+      message.role === "user" && message.username
+        ? `${message.username}: ${message.content}`
+        : message.content,
+  }));
+
   const response = await ollama.chat({
     model: MODEL,
     messages: [
@@ -20,17 +25,13 @@ export async function generateAIResponse(
         role: "system",
         content: systemPrompt,
       },
-      ...conversationHistory,
+      ...history,
       {
         role: "user",
         content: userMessage,
       },
     ],
-    // options: {
-    //   num_predict: 300,
-    //   temperature: 0.7,
-    // },
-    keep_alive: "30m"
+    keep_alive: "30m",
   });
 
   const duration = ((Date.now() - startTime) / 1000).toFixed(2);

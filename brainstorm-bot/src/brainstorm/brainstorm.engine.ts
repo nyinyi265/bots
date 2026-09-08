@@ -1,10 +1,6 @@
 import { generateAIResponse } from '../services/ai.service.js';
 import { BRAINSTORM_SYSTEM_PROMPT } from './brainstorm.prompt.js';
-
-type Message = {
-  role: 'user' | 'assistant';
-  content: string;
-}
+import type { Message } from "../memory/conversation.memory.js";
 
 export async function brainstorm(
   userMessage: string,
