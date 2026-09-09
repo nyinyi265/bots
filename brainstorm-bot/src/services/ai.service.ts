@@ -7,6 +7,7 @@ export async function generateAIResponse(
   userMessage: string,
   systemPrompt: string,
   conversationHistory: Message[] = [],
+  username?: string,
 ): Promise<string> {
   const startTime = Date.now();
 
@@ -18,6 +19,8 @@ export async function generateAIResponse(
         : message.content,
   }));
 
+  const currentMessage = username ? `${username}: ${userMessage}` : userMessage;
+
   const response = await ollama.chat({
     model: MODEL,
     messages: [
@@ -28,7 +31,7 @@ export async function generateAIResponse(
       ...history,
       {
         role: "user",
-        content: userMessage,
+        content: currentMessage,
       },
     ],
     keep_alive: "30m",

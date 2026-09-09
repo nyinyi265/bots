@@ -5,10 +5,12 @@ import type { Message } from "../memory/conversation.memory.js";
 export async function brainstorm(
   userMessage: string,
   conversationHistory: Message [] = [],
+  username?: string,
 ): Promise<string> {
   return generateAIResponse(
     userMessage,
     BRAINSTORM_SYSTEM_PROMPT,
     conversationHistory,
+    username,
   );
 }

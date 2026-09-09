@@ -44,18 +44,21 @@ export async function textMessageHandler(ctx: Context): Promise<void> {
 
   try {
     await ctx.sendChatAction("typing");
+    
+    const username =
+      ctx.from?.username ?? ctx.from?.first_name ?? "Unknown user";
 
     const conversationId = String(ctx.chat!.id);
 
     const conversationHistory = getConversation(conversationId);
 
-    const response = await brainstorm(question, conversationHistory);
+    const response = await brainstorm(question, conversationHistory, username);
 
     addMessage(conversationId, {
       role: "user",
       content: question,
       userId: String(ctx.from?.id),
-      username: ctx.from?.username ?? ctx.from?.first_name ?? "Unknown user",
+      username,
     });
 
     addMessage(conversationId, {
