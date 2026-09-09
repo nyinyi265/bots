@@ -44,7 +44,7 @@ export async function textMessageHandler(ctx: Context): Promise<void> {
 
   try {
     await ctx.sendChatAction("typing");
-    
+
     const username =
       ctx.from?.username ?? ctx.from?.first_name ?? "Unknown user";
 
@@ -79,7 +79,11 @@ export async function textMessageHandler(ctx: Context): Promise<void> {
 export async function clearCommandHandler(ctx: Context): Promise<void> {
   const conversationId = String(ctx.chat!.id);
 
+  console.log("🧹 Clearing conversation:", conversationId);
+
   clearConversation(conversationId);
+
+  console.log("🧹 Conversation after clear:", getConversation(conversationId));
 
   await ctx.reply("🧹 Conversation cleared. Let's start fresh!");
 }

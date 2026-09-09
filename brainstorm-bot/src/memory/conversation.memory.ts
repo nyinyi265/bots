@@ -5,33 +5,37 @@ export type Message = {
   username?: string;
 };
 
-const conversations = new Map<string, Message[]>();
+type Conversation = {
+  messages: Message[];
+};
+
+const conversations = new Map<string, Conversation>();
 
 const MAX_MESSAGES = 10;
 
-export function getConversation(
-  conversationId: string,
-): Message[] {
-  return conversations.get(conversationId) ?? [];
+export function getConversation(conversationId: string): Message[] {
+  const conversation = conversations.get(conversationId);
+
+  return conversation?.messages ?? [];
 }
 
-export function addMessage(
-  conversationId: string,
-  message: Message,
-): void {
-  const messages = conversations.get(conversationId) ?? [];
+export function addMessage(conversationId: string, message: Message): void {
+  const conversation = conversations.get(conversationId) ?? {
+    messages: [],
+  };
 
-  messages.push(message);
+  conversation.messages.push(message);
 
-  if (messages.length > MAX_MESSAGES) {
-    messages.splice(0, messages.length - MAX_MESSAGES);
+  if (conversation.messages.length > MAX_MESSAGES) {
+    conversation.messages.splice(
+      0,
+      conversation.messages.length - MAX_MESSAGES,
+    );
   }
 
-  conversations.set(conversationId, messages);
+  conversations.set(conversationId, conversation);
 }
 
-export function clearConversation(
-  conversationId: string,
-): void {
+export function clearConversation(conversationId: string): void {
   conversations.delete(conversationId);
 }

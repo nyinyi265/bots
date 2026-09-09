@@ -1,12 +1,14 @@
 import { Telegraf } from 'telegraf';
 import { env } from './config/env.js';
 import { helpCommand, startCommand } from './bot/commands.js';
-import { textMessageHandler } from './bot/handlers.js';
+import { textMessageHandler, clearCommandHandler  } from './bot/handlers.js';
 
 const bot = new Telegraf(env.telegramBotToken);
 
 bot.start(startCommand);
 bot.help(helpCommand);
+
+bot.command("clear", clearCommandHandler);
 
 bot.on('text', textMessageHandler);
 
