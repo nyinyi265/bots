@@ -53,8 +53,10 @@ export async function textMessageHandler(ctx: Context): Promise<void> {
     const conversationId = String(ctx.chat!.id);
 
     const topic = getOrCreateTopic(conversationId, question);
+    console.log(`🧠 Topic selected: "${topic.name}" (${topic.id})`);
 
     const conversationHistory = getTopicMessages(conversationId, topic.id);
+    console.log(`📚 Topic history: ${conversationHistory.length} messages`);
 
     const response = await brainstorm(question, conversationHistory, username);
 

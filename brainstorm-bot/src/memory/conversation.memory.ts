@@ -156,6 +156,12 @@ export function getTopicMessages(
   return topic?.messages ?? [];
 }
 
+export function getTopics(conversationId: string): Topic[] {
+  const conversation = conversations.get(conversationId);
+
+  return conversation?.topics ?? [];
+}
+
 export function clearConversation(conversationId: string): void {
   conversations.delete(conversationId);
 }
