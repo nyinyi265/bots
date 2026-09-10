@@ -4,6 +4,8 @@ import {
   getConversation,
   addMessage,
   clearConversation,
+  getOrCreateTopic,
+  getTopicMessages,
 } from "../memory/conversation.memory.js";
 
 const BOT_USERNAME = "zethus_brainstorm_bot";
@@ -50,21 +52,31 @@ export async function textMessageHandler(ctx: Context): Promise<void> {
 
     const conversationId = String(ctx.chat!.id);
 
-    const conversationHistory = getConversation(conversationId);
+    const topic = getOrCreateTopic(conversationId, question);
+
+    const conversationHistory = getTopicMessages(conversationId, topic.id);
 
     const response = await brainstorm(question, conversationHistory, username);
 
-    addMessage(conversationId, {
-      role: "user",
-      content: question,
-      userId: String(ctx.from?.id),
-      username,
-    });
+    addMessage(
+      conversationId,
+      {
+        role: "user",
+        content: question,
+        userId: String(ctx.from?.id),
+        username,
+      },
+      topic.id,
+    );
 
-    addMessage(conversationId, {
-      role: "assistant",
-      content: response,
-    });
+    addMessage(
+      conversationId,
+      {
+        role: "assistant",
+        content: response,
+      },
+      topic.id,
+    );
 
     await ctx.reply(response);
   } catch (error) {
