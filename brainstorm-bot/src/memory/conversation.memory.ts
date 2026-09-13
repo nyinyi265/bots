@@ -22,12 +22,43 @@ const conversations = new Map<string, Conversation>();
 
 const MAX_MESSAGES = 10;
 
+const STOP_WORDS = new Set([
+  "about",
+  "also",
+  "could",
+  "does",
+  "from",
+  "have",
+  "how",
+  "into",
+  "just",
+  "like",
+  "need",
+  "should",
+  "that",
+  "their",
+  "there",
+  "these",
+  "this",
+  "want",
+  "what",
+  "when",
+  "where",
+  "which",
+  "with",
+  "would",
+  "your",
+  "build",
+  "using",
+  "use",
+]);
+
 function extractKeywords(text: string): string[] {
   return text
     .toLowerCase()
     .replace(/[^\w\s]/g, "")
     .split(/\s+/)
-    .filter((word) => word.length >= 4);
+    .filter((word) => word.length >= 4 && !STOP_WORDS.has(word));
 }
 
 export function getConversation(conversationId: string): Message[] {
@@ -114,9 +145,12 @@ export function findMatchingTopic(
   let bestTopic: Topic | undefined;
   let bestScore = 0;
 
+  // 1. Look for a strong keyword match.
   for (const topic of conversation.topics) {
+    const topicKeywords = new Set(topic.keywords);
+
     const score = messageKeywords.filter((keyword) =>
-      topic.keywords.includes(keyword),
+      topicKeywords.has(keyword),
     ).length;
 
     if (score > bestScore) {
@@ -125,7 +159,23 @@ export function findMatchingTopic(
     }
   }
 
-  return bestTopic;
+  // 2. If we found a meaningful match, use it.
+  if (bestTopic && bestScore > 0) {
+    return bestTopic;
+  }
+
+  // 3. Otherwise, continue the current topic.
+  if (conversation.currentTopicId) {
+    const currentTopic = conversation.topics.find(
+      (topic) => topic.id === conversation.currentTopicId,
+    );
+
+    if (currentTopic) {
+      return currentTopic;
+    }
+  }
+
+  return undefined;
 }
 
 export function getOrCreateTopic(
