@@ -2,6 +2,7 @@ import { Telegraf } from 'telegraf';
 import { env } from './config/env.js';
 import { helpCommand, startCommand } from './bot/commands.js';
 import { textMessageHandler, clearCommandHandler  } from './bot/handlers.js';
+import { testDatabaseConnection } from "./database/postgres.js";
 
 const bot = new Telegraf(env.telegramBotToken);
 
@@ -17,6 +18,7 @@ bot.catch((error) => {
 });
 
 async function main(): Promise<void> {
+  await testDatabaseConnection();
   await bot.telegram.getMe();
 
   console.log('🧠 Brainstorm Bot is starting...');

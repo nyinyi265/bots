@@ -7,6 +7,8 @@ import {
   getOrCreateTopic,
   getTopicMessages,
 } from "../memory/conversation.memory.js";
+import { generateEmbedding } from "../services/embedding.service.js";
+import { searchMemories, saveMemory } from "../memory/vector.memory.js";
 
 const BOT_USERNAME = "zethus_brainstorm_bot";
 
@@ -52,13 +54,40 @@ export async function textMessageHandler(ctx: Context): Promise<void> {
 
     const conversationId = String(ctx.chat!.id);
 
+    const embedding = await generateEmbedding(question);
+
+    const persistentMemories = await searchMemories(
+      conversationId,
+      embedding,
+      5,
+    );
+    console.log(`🧠 Persistent memories found: ${persistentMemories.length}`);
+
     const topic = getOrCreateTopic(conversationId, question);
     console.log(`🧠 Topic selected: "${topic.name}" (${topic.id})`);
 
     const conversationHistory = getTopicMessages(conversationId, topic.id);
     console.log(`📚 Topic history: ${conversationHistory.length} messages`);
 
-    const response = await brainstorm(question, conversationHistory, username);
+    const response = await brainstorm(
+      question,
+      conversationHistory,
+      username,
+      persistentMemories,
+    );
+
+    await saveMemory(
+      conversationId,
+      question,
+      embedding,
+      "user",
+      String(ctx.from?.id),
+      username,
+    );
+
+    const responseEmbedding = await generateEmbedding(response);
+
+    await saveMemory(conversationId, response, responseEmbedding, "assistant");
 
     addMessage(
       conversationId,

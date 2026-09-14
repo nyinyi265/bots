@@ -1,5 +1,6 @@
 import ollama from "ollama";
-import {Message} from '../memory/conversation.memory.js'
+import { Message } from "../memory/conversation.memory.js";
+import type { Memory } from "../memory/vector.memory.js";
 
 const MODEL = "llama3.2";
 
@@ -8,6 +9,7 @@ export async function generateAIResponse(
   systemPrompt: string,
   conversationHistory: Message[] = [],
   username?: string,
+  persistentMemories: Memory[] = [],
 ): Promise<string> {
   const startTime = Date.now();
 
@@ -20,6 +22,23 @@ export async function generateAIResponse(
   }));
 
   const currentMessage = username ? `${username}: ${userMessage}` : userMessage;
+
+  const memoryContext =
+    persistentMemories.length > 0
+      ? `
+      Relevant memories from previous conversations:
+
+      ${persistentMemories
+        .map((memory) => `- ${memory.username ?? "User"}: ${memory.content}`)
+        .join("\n")}
+      `
+      : "";
+
+  const enhancedSystemPrompt = `
+    ${systemPrompt}
+
+    ${memoryContext}
+  `;
 
   const response = await ollama.chat({
     model: MODEL,
