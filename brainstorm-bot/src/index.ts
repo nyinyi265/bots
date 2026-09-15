@@ -24,12 +24,39 @@ async function main(): Promise<void> {
   await testDatabaseConnection();
   await bot.telegram.getMe();
 
+  const PORT = Number(process.env.PORT ?? 3000);
+  const WEBHOOK_DOMAIN = process.env.WEBHOOK_DOMAIN;
+  const WEBHOOK_PATH = process.env.WEBHOOK_PATH ?? "/telegram/webhook";
+  const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
+
   console.log("🧠 Brainstorm Bot is starting...");
-  console.log("📡 Using long polling.");
-  console.log("Press Ctrl+C to stop the bot.");
 
-  await bot.launch();
+  if (process.env.NODE_ENV === "production") {
+    if (!WEBHOOK_DOMAIN) {
+      throw new Error("WEBHOOK_DOMAIN is required in production.");
+    }
 
+    if (!WEBHOOK_SECRET) {
+      throw new Error("WEBHOOK_SECRET is required in production.");
+    }
+
+    await bot.launch({
+      webhook: {
+        domain: WEBHOOK_DOMAIN,
+        port: PORT,
+        path: WEBHOOK_PATH,
+        secretToken: WEBHOOK_SECRET,
+      },
+    });
+
+    console.log(
+      `🌐 Webhook mode enabled: https://${WEBHOOK_DOMAIN}${WEBHOOK_PATH}`,
+    );
+  } else {
+    await bot.launch();
+
+    console.log("📡 Using long polling.");
+  }
   console.log("✅ Brainstorm Bot is running!");
 }
 
