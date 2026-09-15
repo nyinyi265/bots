@@ -2,12 +2,15 @@ import pg from "pg";
 
 const { Pool } = pg;
 
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL is not configured.");
+}
+
 export const pool = new Pool({
-  host: process.env.POSTGRES_HOST,
-  port: Number(process.env.POSTGRES_PORT ?? 5432),
-  database: process.env.POSTGRES_DATABASE,
-  user: process.env.POSTGRES_USER,
-  password: process.env.POSTGRES_PASSWORD,
+  connectionString: process.env.DATABASE_URL,
+  max: 10,
+  idleTimeoutMillis: 30_000,
+  connectionTimeoutMillis: 10_000,
 });
 
 pool.on("error", (error) => {
