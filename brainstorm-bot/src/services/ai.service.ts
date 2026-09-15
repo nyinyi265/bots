@@ -45,7 +45,7 @@ export async function generateAIResponse(
     messages: [
       {
         role: "system",
-        content: systemPrompt,
+        content: enhancedSystemPrompt,
       },
       ...history,
       {

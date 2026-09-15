@@ -1,7 +1,7 @@
-import { Telegraf } from 'telegraf';
-import { env } from './config/env.js';
-import { helpCommand, startCommand } from './bot/commands.js';
-import { textMessageHandler, clearCommandHandler  } from './bot/handlers.js';
+import { Telegraf } from "telegraf";
+import { env } from "./config/env.js";
+import { helpCommand, startCommand } from "./bot/commands.js";
+import { textMessageHandler, clearCommandHandler } from "./bot/handlers.js";
 import { testDatabaseConnection } from "./database/postgres.js";
 
 const bot = new Telegraf(env.telegramBotToken);
@@ -10,30 +10,33 @@ bot.start(startCommand);
 bot.help(helpCommand);
 
 bot.command("clear", clearCommandHandler);
+bot.on("text", textMessageHandler);
 
-bot.on('text', textMessageHandler);
-
-bot.catch((error) => {
-  console.error('Telegram bot error:', error);
+bot.catch((error, ctx) => {
+  console.error("❌ Telegram bot error:", {
+    error,
+    updateId: ctx.update.update_id,
+    chatId: ctx.chat?.id,
+  });
 });
 
 async function main(): Promise<void> {
   await testDatabaseConnection();
   await bot.telegram.getMe();
 
-  console.log('🧠 Brainstorm Bot is starting...');
-  console.log('📡 Using long polling.');
-  console.log('Press Ctrl+C to stop the bot.');
+  console.log("🧠 Brainstorm Bot is starting...");
+  console.log("📡 Using long polling.");
+  console.log("Press Ctrl+C to stop the bot.");
 
   await bot.launch();
 
-  console.log('✅ Brainstorm Bot is running!');
+  console.log("✅ Brainstorm Bot is running!");
 }
 
 main().catch((error) => {
-  console.error('❌ Failed to start Brainstorm Bot:', error);
+  console.error("❌ Failed to start Brainstorm Bot:", error);
   process.exit(1);
 });
 
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+process.once("SIGINT", () => bot.stop("SIGINT"));
+process.once("SIGTERM", () => bot.stop("SIGTERM"));
