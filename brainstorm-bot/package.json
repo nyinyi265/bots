@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
-    "netlify:build": "tsc --noEmit"
+    "netlify:build": "tsc",
+    "start": "node dist/index.js"
   },
   "engines": {
     "node": ">=22"

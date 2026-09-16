@@ -19,6 +19,11 @@ export async function saveMemory(
   userId?: string,
   username?: string,
 ): Promise<void> {
+  if (!pool) {
+    console.warn("⚠️ Database unavailable. Skipping saveMemory.");
+    return;
+  }
+
   const vector = `[${embedding.join(",")}]`;
 
   await pool.query(
@@ -45,6 +50,13 @@ export async function searchMemories(
   limit = 5,
   minSimilarity = 0.65,
 ): Promise<Memory[]> {
+  if (!pool) {
+    console.warn(
+      "⚠️ Database unavailable. Skipping searchMemories.",
+    );
+    return [];
+  }
+
   const vector = `[${embedding.join(",")}]`;
 
   const result = await pool.query(
