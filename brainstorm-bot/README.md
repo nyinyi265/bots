@@ -4,7 +4,7 @@ A simple Telegram bot built with Node.js, TypeScript, and Telegraf.
 
 ## 1. Requirements
 
-- Node.js 20+ recommended
+- Node.js 22+ recommended
 - A Telegram bot created with @BotFather
 
 Check your Node.js version:
@@ -80,7 +80,7 @@ I want to build a React project for managing my car.
 
 The current bot will echo the idea.
 
-## 6. Build for production
+## 6. Build for production (local Node process)
 
 ```bash
 npm run build
@@ -92,32 +92,68 @@ Then:
 npm start
 ```
 
+## 7. Deploy on Netlify
+
+Netlify cannot run a long-lived Telegram polling/HTTP server. This project uses serverless webhook functions instead.
+
+### Netlify settings
+
+- Base directory: `brainstorm-bot`
+- Build command: `npm run netlify:build`
+- Publish directory: `public`
+
+### Environment variables
+
+Set these in the Netlify UI:
+
+- `TELEGRAM_BOT_TOKEN`
+- `WEBHOOK_SECRET`
+- `WEBHOOK_SETUP_KEY`
+- `DATABASE_URL`
+- `AI_PROVIDER=qwen`
+- `QWEN_API_KEY`
+- `QWEN_BASE_URL`
+- `QWEN_MODEL`
+- `DATABASE_SSL=true` (if your hosted Postgres needs it; also auto-enabled on Netlify)
+
+Do not use `AI_PROVIDER=ollama` on Netlify. Ollama is local-only.
+
+### After deploy: set the Telegram webhook
+
+Open:
+
+```text
+https://YOUR_SITE.netlify.app/.netlify/functions/set-webhook?key=YOUR_WEBHOOK_SETUP_KEY
+```
+
+That registers:
+
+```text
+https://YOUR_SITE.netlify.app/.netlify/functions/telegram
+```
+
+Health check:
+
+```text
+https://YOUR_SITE.netlify.app/health
+```
+
 ## Project structure
 
 ```text
+netlify/
+├── functions/
+│   ├── telegram.ts
+│   ├── set-webhook.ts
+│   └── health.ts
+public/
+└── index.html
 src/
 ├── bot/
+│   ├── create-bot.ts
 │   ├── commands.ts
 │   └── handlers.ts
 ├── config/
 │   └── env.ts
 └── index.ts
-```
-
-### Next step
-
-The next version can replace the echo response with an AI service:
-
-```text
-Telegram
-   ↓
-Brainstorm Bot
-   ↓
-AI Service
-   ↓
-AI Model
-   ↓
-Brainstorm response
-   ↓
-Telegram
 ```

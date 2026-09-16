@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Brainstorm Bot</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f3f6f4;
+        --ink: #1c2b24;
+        --muted: #5a6b62;
+        --accent: #2f6f4e;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background:
+          radial-gradient(circle at top left, #d9ebe0, transparent 45%),
+          radial-gradient(circle at bottom right, #e7efe9, transparent 40%),
+          var(--bg);
+        color: var(--ink);
+      }
+
+      main {
+        max-width: 36rem;
+        padding: 2rem;
+        text-align: center;
+      }
+
+      h1 {
+        margin: 0 0 0.75rem;
+        font-size: clamp(1.75rem, 4vw, 2.4rem);
+      }
+
+      p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      a {
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Brainstorm Bot</h1>
+      <p>
+        This Netlify site hosts the Telegram webhook.
+        Talk to the bot in Telegram after the webhook is set.
+      </p>
+    </main>
+  </body>
+</html>

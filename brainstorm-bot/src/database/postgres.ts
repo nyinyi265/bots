@@ -6,11 +6,26 @@ if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL is not configured.");
 }
 
+const isServerless = Boolean(
+  process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME,
+);
+
+const databaseUrl = process.env.DATABASE_URL;
+const shouldUseSsl =
+  process.env.DATABASE_SSL === "true" ||
+  isServerless ||
+  /sslmode=require/i.test(databaseUrl);
+
 export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  max: 10,
-  idleTimeoutMillis: 30_000,
+  connectionString: databaseUrl,
+  max: isServerless ? 1 : 10,
+  idleTimeoutMillis: isServerless ? 5_000 : 30_000,
   connectionTimeoutMillis: 10_000,
+  ssl: shouldUseSsl
+    ? {
+        rejectUnauthorized: false,
+      }
+    : undefined,
 });
 
 pool.on("error", (error) => {
@@ -20,8 +35,5 @@ pool.on("error", (error) => {
 export async function testDatabaseConnection(): Promise<void> {
   const result = await pool.query("SELECT NOW()");
 
-  console.log(
-    "🐘 PostgreSQL connected:",
-    result.rows[0],
-  );
+  console.log("🐘 PostgreSQL connected:", result.rows[0]);
 }
